@@ -11,6 +11,10 @@ router.get('/correos/:id', correo.getCorreo);
 router.put('/correos/:id', correo.editCorreo);
 router.delete('/correos/:id', correo.deleteCorreo);
 
+router.get('/', function(req, res) {
+    res.render('../views/pages/index');
+  });
+  
 
 /*router.get('/', (req, res) => {
     res.send('Hola Mundo, API funcionando');
