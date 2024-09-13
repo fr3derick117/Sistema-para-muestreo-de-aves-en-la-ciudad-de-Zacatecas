@@ -3,18 +3,19 @@ const router = express.Router();
 
 const correo = require('../controllers/correo.controller');
 
-const usuario = require('../controllers/usuario.controller');
-
 router.get('/correos', correo.getCorreos);
 router.post('/correos', correo.createCorreo);
 router.get('/correos/:id', correo.getCorreo);
 router.put('/correos/:id', correo.editCorreo);
 router.delete('/correos/:id', correo.deleteCorreo);
 
-router.get('/', function(req, res) {
-    res.render('../views/pages/index');
+//router.get('/enviar', correo.enviarCorreo);
+
+/*router.get('/:uid', function(req, res) {
+    const uid = req.params.uid;
+    res.render('../views/pages/index', { uid });
   });
-  
+*/
 
 /*router.get('/', (req, res) => {
     res.send('Hola Mundo, API funcionando');
