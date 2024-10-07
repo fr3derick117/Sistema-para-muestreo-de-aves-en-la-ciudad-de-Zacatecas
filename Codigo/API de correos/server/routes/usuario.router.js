@@ -13,9 +13,8 @@ router.get('/prueba', usuario.usarIdUsuario);
 router.get('/enviarcorreo', usuario.enviarCorreo);
 router.get('/:id_usuario', usuario.mostrarPagina);
 
-/*router.get('/:id_usuario', function(req, res) {
-    const id_usuario = req.params.id_usuario;
-    res.render('../views/pages/index', {id_usuario});
+/*router.get('/', function(req, res) {
+    res.render('../views/pages/404');
 });*/
 
 module.exports = router;
