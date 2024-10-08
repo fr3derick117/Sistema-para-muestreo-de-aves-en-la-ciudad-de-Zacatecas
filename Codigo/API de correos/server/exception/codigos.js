@@ -6,6 +6,8 @@ const codigos = {
     datoNoEncontrado: "0004",
     sinPermisos: "0005",
     bodyNoValido: "0006",
+    errorAlEnviarCorreo: "0007",
+    errorAlCrearUsuario: "0008"
 };
 
 module.exports = codigos;

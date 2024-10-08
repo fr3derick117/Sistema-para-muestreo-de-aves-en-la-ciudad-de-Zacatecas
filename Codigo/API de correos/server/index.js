@@ -1,13 +1,14 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+//const jwt = require('jsonwebtoken');
 const app = express();
 const {mongoose} = require('./databases');
 const path = require('path');
 const handleError = require('./middleware/error.middleware');
+const favicon = require('serve-favicon');
 
 //const PostageApp = require('postageapp');
-
 //var postageapp = new PostageApp('ACCOUNT_API_KEY');
 
 //Configuración del servidor
@@ -17,6 +18,11 @@ app.set('views', path.join(__dirname, '../views'));
 
 // Configurar la carpeta de archivos estáticos
 app.use(express.static(path.join(__dirname, '../views/static')));
+
+// favicon
+const faviconPath = path.join(__dirname, '', '../views/static/logo_nombre.jpeg');
+app.use(favicon(faviconPath)); 
+//app.use('/favicon.ico', (req, res) => res.status(304));
 
 //Middlewares - funciones de procesamiento de datos
 app.use(morgan('dev')); //Mostrar mensajes del usuario
