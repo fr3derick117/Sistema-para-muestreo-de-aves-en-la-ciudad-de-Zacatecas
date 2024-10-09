@@ -12,15 +12,20 @@ let id_usuario;
 
 usuarioCtrl.mostrarPagina = async (req, res) => {
     id_usuario = req;
-    console.log(id_usuario);
-    const usuario = await Usuario.findById(id_usuario); 
-    if (usuario){
-        const usuario = {confirmado: true};
-        await Usuario.findByIdAndUpdate(id_usuario, { $set: usuario }, { new: true });
-        //await usuarioCtrl.editUsuario(id_usuario, res);
-        //res.render("../views/pages/index");
-        res.render("../views/pages/index", { id_usuario });
-        //res.json({ usuario });
+    if (id_usuario != undefined && id_usuario != null){
+        console.log(id_usuario);
+        const usuario = await Usuario.findById(id_usuario); 
+        if (usuario){
+            const usuario = {confirmado: true};
+            await Usuario.findByIdAndUpdate(id_usuario, { $set: usuario }, { new: true });
+            //await usuarioCtrl.editUsuario(id_usuario, res);
+            //res.render("../views/pages/index");
+            res.render("../views/pages/index", { id_usuario });
+            //res.json({ usuario });
+        } else {
+            return new StandarException('Usuario no encontrado', codigos.datosNoEncontrados);
+
+        }
     } else {
         return new StandarException('Usuario no encontrado', codigos.datosNoEncontrados);
     }
@@ -36,12 +41,21 @@ usuarioCtrl.getUsuarios = async (req, res) => {
 };
 
 usuarioCtrl.createUsuario = async (req, res) => {
-    const usuario = new Usuario(req.body); //Crea un nuevo usuario
+    const id_generada = generarIds();
+    if (id_generada == undefined && id_generada == null){
+        return new StandarException('Error al guardar el usuario', codigos.errorAlCrearUsuario, error); 
+    }
+    console.log(id_generada)
+    const usuario = new Usuario({
+        id_usuario: id_generada,
+        ...req.body
+    });
+    //const usuario = new Usuario(req.body);
     const savedUsuario = await usuario.save().catch(error => {
         return new StandarException('Error al guardar el usuario', codigos.errorAlCrearUsuario, error);
     });
     console.log(usuario);
-    id_usuario = usuario._id.toString();
+    id_usuario = usuario.id_usuario.toString();
     console.log(id_usuario);
 
     const token = jwt.sign({ id: id_usuario }, key, { expiresIn: '1h' });
@@ -51,7 +65,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
         return new StandarException('Error al enviar correo', codigos.errorAlEnviarCorreo, error);
     });
     
-    res.json({ status: "Usuario guardado", usuario, id_usuario: id_usuario });
+    //res.json({ status: "Usuario guardado", usuario, id_usuario: id_usuario });
 };
 
 usuarioCtrl.getUsuario = async (req, res) => {
@@ -136,6 +150,35 @@ usuarioCtrl.enviarCorreo = async (req, res, token) => {
     }
     res.json(response);
 };
+
+let counter = 0;
+let lastGeneratedHour = "";
+
+const generarIds = () => {
+    const prefix = '107';
+    const date = new Date();
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript van de 0 a 11
+    const year = String(date.getFullYear());
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    const currentHour = `${day}${month}${year}${hour}${minutes}`;
+    
+    if (currentHour !== lastGeneratedHour) {
+        counter = 1;
+        lastGeneratedHour = currentHour;
+    } else {
+        counter += 1;
+    }
+    
+    const counterStr = String(counter).padStart(2, '0');
+    
+    return `${prefix}${day}${month}${year}${hour}${minutes}${counterStr}`;
+};
+
+
 
 console.log("Usuario: ", id_usuario);
 
