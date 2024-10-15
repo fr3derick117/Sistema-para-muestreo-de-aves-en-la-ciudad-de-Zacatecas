@@ -11,34 +11,35 @@ const key = "VSSL";
 let id_usuario;
 
 usuarioCtrl.mostrarPagina = async (req, res) => {
-    id_usuario = req;
+    //Validar y decodificar el token
+    const token = req.params.token; 
+    console.log(token);
+    if (!token) {
+        return res.status(400).json({ message: 'Token no proporcionado' });
+    }
+    jwt.verify(token, key, (err, decoded) => {
+        if (err) {
+            return res.status(400).json({ message: 'Token inválido o expirado' });
+        }
+        id_decodificada = decoded.id; 
+    });
+
+    //Validar usuario y mostrar página
+    id_usuario = id_decodificada;
     if (id_usuario != undefined && id_usuario != null){
         console.log(id_usuario);
         const usuario = await Usuario.findById(id_usuario); 
         if (usuario){
             const usuario = {confirmado: true};
             await Usuario.findByIdAndUpdate(id_usuario, { $set: usuario }, { new: true });
-            //await usuarioCtrl.editUsuario(id_usuario, res);
-            //res.render("../views/pages/index");
             res.render("../views/pages/index", { id_usuario });
-            //res.json({ usuario });
         } else {
             return new StandarException('Usuario no encontrado', codigos.datosNoEncontrados);
-
         }
     } else {
         return new StandarException('Usuario no encontrado', codigos.datosNoEncontrados);
     }
 }
-
-usuarioCtrl.getUsuarios = async (req, res) => {
-    try {
-        const usuarios = await Usuario.find(); //Busca todos los usuarios
-        res.json(usuarios);
-    } catch (error) {
-        res.status(500).json({ message: "Error al obtener los usuarios" });
-    }
-};
 
 usuarioCtrl.createUsuario = async (req, res) => {
     const id_generada = generarIds();
@@ -50,7 +51,6 @@ usuarioCtrl.createUsuario = async (req, res) => {
         id_usuario: id_generada,
         ...req.body
     });
-    //const usuario = new Usuario(req.body);
     const savedUsuario = await usuario.save().catch(error => {
         return new StandarException('Error al guardar el usuario', codigos.errorAlCrearUsuario, error);
     });
@@ -64,19 +64,24 @@ usuarioCtrl.createUsuario = async (req, res) => {
     const correoEnviado = await usuarioCtrl.enviarCorreo(req, res, token).catch(error => {
         return new StandarException('Error al enviar correo', codigos.errorAlEnviarCorreo, error);
     });
-    
-    //res.json({ status: "Usuario guardado", usuario, id_usuario: id_usuario });
+};
+
+
+usuarioCtrl.getUsuarios = async (req, res) => {
+    try {
+        const usuarios = await Usuario.find(); 
+        res.json(usuarios);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener los usuarios" });
+    }
 };
 
 usuarioCtrl.getUsuario = async (req, res) => {
-    const usuario = await Usuario.findById(req.params.id); //Busca un usuario por su ID
+    const usuario = await Usuario.findById(req.params.id); 
     if(!usuario){
         return new StandarException('Usuario no encontrado', codigos.datosNoEncontrados);
     }
     return usuario;
-    //id_usuario = req.params.id;
-    //res.json(usuario);
-    //usuarioCtrl.usarIdUsuario;
 };
 
 usuarioCtrl.editUsuario = async (req, res) => {
@@ -95,7 +100,7 @@ usuarioCtrl.editUsuario = async (req, res) => {
 
 usuarioCtrl.deleteUsuario = async (req, res) => {
     try {
-    //await Usuario.findByIdAndRemove(req.params.id); //Elimina un usuario por su ID
+    //await Usuario.findByIdAndRemove(req.params.id); 
         await Usuario.findByIdAndDelete(req.params.id);
         res.json({ status: "Usuario eliminado" });
     } catch (error) {
@@ -112,7 +117,6 @@ usuarioCtrl.usarIdUsuario = (req, res) => {
     }
 };
 
-console.log("Usuario: ", id_usuario);
 
 usuarioCtrl.enviarCorreo = async (req, res, token) => {
     console.log("Enviando correo");
@@ -179,7 +183,18 @@ const generarIds = () => {
 };
 
 
+//comprueba que cada id sea único
+prueba_id = () => {
+    const ids = [];
+    for (let i = 0; i < 500; i++) {
+        ids.push(generarIds());
+    }
+    //console.log(ids);
+    const uniqueIds = new Set(ids);
+    console.log(uniqueIds.size === ids.length);
+}
 
-console.log("Usuario: ", id_usuario);
+prueba_id();
+
 
 module.exports = usuarioCtrl;

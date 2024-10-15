@@ -20,9 +20,6 @@ router.get('/confirmado/:token', autMiddleware.verifyTokenInURL, async (req, res
 });
 
 
-/*router.get('/', function(req, res) {
-    res.render('../views/pages/404');
-});*/
 // Esta ruta será una vista por defecto para rutas no definidas
 router.get((req, res) => { res.render('404.ejs') });
 
